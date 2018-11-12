@@ -1,8 +1,9 @@
 module ClassicBoard where
 
 import Grid
+import Data.List
 
-classic_board = Board 2 9 classic_groups
+classic_board = Board 2 9 classic_groups classic_positions
 
 classic_groups :: [Group]
 classic_groups = row_groups ++ col_groups ++ square_groups
@@ -17,3 +18,13 @@ classic_groups = row_groups ++ col_groups ++ square_groups
       | mod c 3 > 0 = (square_col n - 1) * 3 + (mod c 3)
       | otherwise   = square_col n * 3
     square_y n c = (square_row n - 1) * 3 + div (c + 2) 3
+
+
+
+classic_positions::PositionList
+classic_positions= sortBy (\(a, _) (b, _)-> compare a b) grid
+  where
+    grid = concat (map (\y -> row y) [1..9])
+    row n = map (\x -> item x n) [1..9]
+    item x y = (num x y, Position [x,y])
+    num x y = ((y - 1) * 9) + x
