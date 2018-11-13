@@ -75,3 +75,23 @@ boardSize (Board d s g pl) = map dimSize [1..d]
 
 boardDimensions :: Board -> Int
 boardDimensions (Board d _ _ _) = d
+
+groupSolved :: Board -> Group -> Grid -> Bool
+groupSolved board group grid = not (hasNothing group || notEqual group)
+  where
+    hasNothing g = or (map (isNothing . cellToValue . posToCell') g)
+    notEqual g = targetValues /= sort (map (fromJust . cellToValue . posToCell') g)
+    posToCell' = posToCell board grid
+    cellToValue (CellValue a) = Just a
+    cellToValue _ = Nothing
+    targetValues = [1..(length group)]
+
+gridSolved :: Board -> Grid -> Bool
+gridSolved (Board d s gs pl) grid = and $ map (\g -> groupSolved (Board d s gs pl) g grid) gs
+
+recursiveUpdate :: Board -> Grid -> Grid
+recursiveUpdate b grid
+  | grid == update = grid
+  | True = recursiveUpdate b update
+  where
+    update = refreshGridValues $ updatePossibleValues b grid
