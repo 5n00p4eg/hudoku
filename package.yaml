@@ -1,10 +1,10 @@
-name:                simple
+name:                Hudoku
 version:             0.1.0.0
-github:              "githubuser/simple"
+# github:              "githubuser/simple"
 license:             BSD3
-author:              "Author name here"
+author:              "Daniil Boiko"
 maintainer:          "example@example.com"
-copyright:           "2018 Author name here"
+copyright:           "2018 Daniil Boiko"
 
 extra-source-files:
 - README.md
@@ -17,16 +17,17 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/simple#readme>
+# description:         Please see the README on GitHub at <https://github.com/githubuser/simple#readme>
 
 dependencies:
 - base >= 4.7 && < 5
+- boxes
 
 library:
   source-dirs: src
 
 executables:
-  simple-exe:
+  exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -34,10 +35,11 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - simple
+      - boxes
+      - Hudoku
 
 tests:
-  simple-test:
+  test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -45,4 +47,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - simple
+      - boxes

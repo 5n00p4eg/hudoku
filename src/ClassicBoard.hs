@@ -1,6 +1,7 @@
 module ClassicBoard where
 
 import Grid
+import Board
 import Data.List
 
 classic_board = Board 2 9 classic_groups classic_positions
