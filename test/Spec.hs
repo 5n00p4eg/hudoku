@@ -1,8 +1,5 @@
-module TestSuite
-  where
 import Test.Tasty
 import Test.Tasty.HUnit
--- import Test.HUnit
 import Grid
 import Board
 import ClassicBoard
