@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.0.
+-- This file has been generated from package.yaml by hpack version 0.34.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ad71d89f59cb196fadef5ba6742df25fd275738639a3e72a9b7cf7df68db83d8
+-- hash: 73d604f1c785b6c20da6ad9916588cbe40f3b265af3d402bb2d80ba25b1b4f23
 
 name:           Hudoku
 version:        0.1.0.0
@@ -56,6 +56,10 @@ test-suite test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      HUnit
+    , Hudoku
+    , base >=4.7 && <5
     , boxes
+    , tasty
+    , tasty-hunit
   default-language: Haskell2010
