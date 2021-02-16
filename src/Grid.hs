@@ -11,11 +11,24 @@ instance Show Cell where
   show (EmptyCellVallue) = "."
   show (PossibleValues _) = "_"
 
+isCellValue (CellValue _) = True
+isCellValue _             = False
+
+isEmptyCell EmptyCellVallue = True 
+isEmptyCell _               = False 
+
+isPossibleValues (PossibleValues _) = True 
+isPossibleValues _                  = False 
+
+isPossibleValuesHasValue :: Cell -> Int -> Bool
+isPossibleValuesHasValue (PossibleValues vals) x = x `elem` vals
+isPossibleValuesHasValue _ _ = False 
+
 type Grid = [Cell]
 
 {- TODO: Rework, print as table-}
 showGrid :: Grid -> String
-showGrid g = concat $ map show g
+showGrid = concatMap show 
 
 showCellData :: Cell -> String
 showCellData (CellValue n) = show n
@@ -23,7 +36,7 @@ showCellData EmptyCellVallue = "."
 showCellData (PossibleValues p) = show p
 
 refreshGridValues :: Grid -> Grid
-refreshGridValues g = map (refreshGridValue) g
+refreshGridValues = map refreshGridValue
 
 refreshGridValue :: Cell -> Cell
 refreshGridValue (PossibleValues p) = if length p == 1 then CellValue (head p) else (PossibleValues p)
