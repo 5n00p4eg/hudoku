@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 73d604f1c785b6c20da6ad9916588cbe40f3b265af3d402bb2d80ba25b1b4f23
+-- hash: 580e7082d24c7b41735b44a90aa6f3d65370e48d772bcd1526dcbed5a8941e72
 
 name:           Hudoku
 version:        0.1.0.0
@@ -51,6 +51,7 @@ test-suite test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      BoardTest
       Paths_Hudoku
   hs-source-dirs:
       test

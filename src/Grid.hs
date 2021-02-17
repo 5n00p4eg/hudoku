@@ -8,7 +8,8 @@ import Data.Maybe
 data Cell = CellValue Int | EmptyCellVallue | PossibleValues [Int] deriving (Eq)
 instance Show Cell where
   show (CellValue a) = show a
-  show (EmptyCellVallue) = "."
+  show EmptyCellVallue = "."
+  -- show (PossibleValues x) = show x
   show (PossibleValues _) = "_"
 
 isCellValue (CellValue _) = True
@@ -46,9 +47,17 @@ refreshGridValue x = x
 --  TODO: Синонимы на общие виды досок (2d 9x9, 3d 9x9, 2d 16*16)
 
 readGrid :: String -> Maybe Grid
-readGrid s = traverse readCell s
+readGrid = traverse readCell
   where
-    readCell '.' = Just $ EmptyCellVallue
+    readCell '.' = Just EmptyCellVallue
+    readCell '0' = Just EmptyCellVallue
     readCell c
       | Data.Char.isDigit c && c > '0' = Just . CellValue . Data.Char.digitToInt $ c
       | otherwise = Nothing
+
+readGridWith :: (Grid -> Grid) -> String -> Grid
+readGridWith f = f . fromJust . readGrid
+
+removeCellCandidates :: Cell -> [Int] -> Cell
+removeCellCandidates (PossibleValues p) list = PossibleValues (filter (`notElem` list) p)
+removeCellCandidates x _ = x

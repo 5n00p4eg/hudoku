@@ -4,7 +4,10 @@ import Grid
 import Data.List
 import Data.Maybe
 -- We can process N-dimensional sudoku.
-data Position = Position [Int] deriving (Show, Eq);
+--data Position = Position [Int] deriving (Show, Eq);
+
+newtype Position = Position [Int]
+  deriving (Show, Eq);
 
 type PositionList = [(Int, Position)]
 
@@ -64,7 +67,7 @@ getUniqueGroupValues (Board d s gs pl) grid groupNum = unique $ freq $ pv groupN
     freq list = map (\x -> (head x, length x)) . group . sort $ list
 
 updateUniqueValues :: Board -> Grid -> Grid
-updateUniqueValues (Board d s gs pl) grid = updateGridWithValues (Board d s gs pl) grid (updates (z grid))
+updateUniqueValues board grid = updateGridWithValues board grid (updates (z grid))
   where
     updates :: [(Group, [Int])] -> [(Position, Cell)]
     updates = concatMap updates'
@@ -73,12 +76,31 @@ updateUniqueValues (Board d s gs pl) grid = updateGridWithValues (Board d s gs p
     updatePos :: Group -> Int -> Position
     updatePos g v = fromJust $ find (\pos -> isPossibleValuesHasValue (posToCell' pos) v) g 
     z :: Grid -> [(Group, [Int])]
-    z grid = zip (boardGroups (Board d s gs pl)) (uniq grid)
+    z grid = zip (boardGroups board) (uniq grid)
     uniq :: Grid -> [[Int]]
     uniq grid = map (getUniqueGroupValues board grid) (boardGroups board)
     posToCell' = posToCell board grid
-    board = Board d s gs pl
 
+{-|
+  This is generic algorithm for naken pairs, triples, etc.
+  
+  The idea is:
+  1. get all the board groups and update grid after each group handling.
+  2. For each group we're running same generalized algorighm parametrized with N (2 for pairs).
+  3. Algorithm look for set of N cells that conatin only n<=N same candidates.
+  4. Then we can remove all N candidates from rest of grouop.
+
+-}
+updatedNakedSubsetsN :: Board -> Int -> Grid -> Grid
+updatedNakedSubsetsN board size grid = updateGridWithValues board grid updates
+  where
+    updates :: [(Position, Cell)]
+    updates = mergeGroupUpdates $ map groupUpdates $ boardGroups board
+    groupUpdates :: Group -> [(Position, Cell)]
+    groupUpdates _ = []
+
+    mergeGroupUpdates :: [[(Position, Cell)]] -> [(Position, Cell )]
+    mergeGroupUpdates pl = concat pl -- TODO: implement
 
 updateGridWithValues :: Board -> Grid -> [(Position, Cell )] -> Grid
 updateGridWithValues board grid values = map update pl 
@@ -87,26 +109,35 @@ updateGridWithValues board grid values = map update pl
     update :: (Int, Position) -> Cell
     update (index, pos) = fromMaybe (grid !! (index - 1)) (posValue pos)
     posValue :: Position -> Maybe Cell
-    posValue pos = snd <$> find (\(p, c) -> p==pos) values
+    posValue pos = snd <$> find (\(p, c) -> p==pos) values -- Only one update per position
 
 updatePossibleValues :: Board -> Grid -> Grid
-updatePossibleValues (Board d s gs pl) grid = map (updateCell) gridToMap
+updatePossibleValues (Board d s gs pl) grid = map updateCell gridToMap
   where
     updateCell (_, CellValue n) = CellValue n
-    updateCell (pos, (PossibleValues pvals)) = PossibleValues (filterPvals pos pvals)
+    updateCell (pos, PossibleValues pvals) = PossibleValues (filterPvals pos pvals)
     -- updateCell (pos, (PossibleValues pvals)) = PossibleValues (getActiveVals (groupsByPos pos))
-    filterPvals pos pvals = filter (\old -> notElem old (getActiveVals (groupsByPos pos))) pvals
-    gridToMap = map (\n -> (snd n, grid !! ((fst n) - 1))) pl
+    filterPvals pos pvals = filter (\old -> old `notElem` getActiveVals (groupsByPos pos)) pvals
+    gridToMap = map (\n -> (snd n, grid !! (fst n - 1))) pl
     groupsByPos pos = filter (elem pos) gs
-    getActiveVals grps = nub $ map (fromJust . getActiveVals'') $ filter (filterAval) $ getActiveVals' grps
+    getActiveVals grps = nub $ map (fromJust . getActiveVals'') $ filter filterAval $ getActiveVals' grps
     --  Get array of Cell's
-    getActiveVals' grps = map (posToCell') (nub $ concat grps)
+    getActiveVals' grps = map posToCell' (nub $ concat grps)
     getActiveVals'' (CellValue a) = Just a
     getActiveVals'' _ = Nothing
     filterAval (CellValue _) = True
     filterAval _ = False
     posToCell' = posToCell (Board d s gs pl) grid
 
+-- TODO: Cover with tests
+removeCandidates :: Board -> Grid -> [Position] -> [Int] -> Grid
+removeCandidates board grid posList vals = map update pl
+  where
+    pl = boardPositionList board
+    update :: (Int, Position) -> Cell
+    update (index, pos) = fromMaybe (grid !! (index - 1)) (posValue pos)
+    posValue :: Position -> Maybe Cell
+    posValue pos = (\pos -> removeCellCandidates (posToCell board grid pos) vals) <$> find (==pos) posList
 
 boardGroups :: Board -> [Group]
 boardGroups (Board _ _ g _) = g
@@ -136,12 +167,10 @@ groupSolved board group grid = not (hasNothing group || notEqual group)
 gridSolved :: Board -> Grid -> Bool
 gridSolved (Board d s gs pl) grid = all (\g -> groupSolved (Board d s gs pl) g grid) gs
 
+{-# DEPRECATED recursiveUpdate "Use recursiveUpdateWith instead" #-}
 recursiveUpdate :: Board -> Grid -> Grid
-recursiveUpdate b grid
-  | grid == update = grid
-  | True = recursiveUpdate b update
-  where
-    update = refreshGridValues $ updatePossibleValues b grid
+recursiveUpdate b = recursiveUpdateWith function
+  where function =  updatePossibleValues b . refreshGridValues 
 
 recursiveUpdateWith :: (Grid -> Grid) -> Grid -> Grid
 recursiveUpdateWith f grid
