@@ -9,8 +9,8 @@ data Cell = CellValue Int | EmptyCellVallue | PossibleValues [Int] deriving (Eq)
 instance Show Cell where
   show (CellValue a) = show a
   show EmptyCellVallue = "."
-  -- show (PossibleValues x) = show x
-  show (PossibleValues _) = "_"
+  show (PossibleValues x) = show x
+ -- show (PossibleValues _) = "_"
 
 isCellValue (CellValue _) = True
 isCellValue _             = False
@@ -20,6 +20,10 @@ isEmptyCell _               = False
 
 isPossibleValues (PossibleValues _) = True 
 isPossibleValues _                  = False 
+
+cellCandidates :: Cell -> [Int]
+cellCandidates (PossibleValues x) = x
+cellCandidates _ = error "Cell can't have candidates"
 
 isPossibleValuesHasValue :: Cell -> Int -> Bool
 isPossibleValuesHasValue (PossibleValues vals) x = x `elem` vals
@@ -58,6 +62,8 @@ readGrid = traverse readCell
 readGridWith :: (Grid -> Grid) -> String -> Grid
 readGridWith f = f . fromJust . readGrid
 
+-- TODO: test
 removeCellCandidates :: Cell -> [Int] -> Cell
 removeCellCandidates (PossibleValues p) list = PossibleValues (filter (`notElem` list) p)
 removeCellCandidates x _ = x
+

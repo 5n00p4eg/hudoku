@@ -3,6 +3,7 @@ module Board where
 import Grid
 import Data.List
 import Data.Maybe
+import Data.Tuple.Extra
 -- We can process N-dimensional sudoku.
 --data Position = Position [Int] deriving (Show, Eq);
 
@@ -12,6 +13,8 @@ newtype Position = Position [Int]
 type PositionList = [(Int, Position)]
 
 type Group = [Position]
+
+type CellInfo = (Position, Int, Cell)
 
 -- Dim, size, groups
 data Board = Board Int Int [Group] PositionList
@@ -29,7 +32,6 @@ showGroups :: [Group]  -> String
 showGroups [] = ""
 showGroups g = show (head g)  ++ "\n" ++ showGroups (tail g)
 
-
 cellGetGroups :: Board -> Position -> [Group]
 cellGetGroups (Board _ _ gs _) p = filter (elem p) gs
 
@@ -42,11 +44,27 @@ initPossibleValues (Board _ s _ _) = map initCell
 posToCell:: Board -> Grid -> Position -> Cell
 posToCell b g p = g !! posToNum b p
 
-posToNum:: Board -> Position -> Int
+
+posToNum :: Board -> Position -> Int
 posToNum (Board _ _ _ pl) = pos 
   where
     pos x = fst (fromJust $ pos' x) - 1
     pos' x = find (\ (_, pos)-> pos == x) pl
+
+posToCellInfo :: Board -> Grid -> Position -> CellInfo
+posToCellInfo b g p = (p, posToNum b p, posToCell b g p)
+
+groupToCellInfo :: Board -> Grid -> Group -> [CellInfo]
+groupToCellInfo b g = map $ posToCellInfo b g
+
+cellInfoPosition :: CellInfo -> Position
+cellInfoPosition  = fst3 
+
+cellInfoIndex :: CellInfo -> Int
+cellInfoIndex = snd3
+
+cellInfoCell :: CellInfo -> Cell
+cellInfoCell = thd3
 
 numToPos:: Board -> Grid -> Int -> Position
 numToPos (Board _ _ _ pl) g p = snd (fromJust $ find (\ (i, _) -> i==p) pl)
@@ -80,27 +98,6 @@ updateUniqueValues board grid = updateGridWithValues board grid (updates (z grid
     uniq :: Grid -> [[Int]]
     uniq grid = map (getUniqueGroupValues board grid) (boardGroups board)
     posToCell' = posToCell board grid
-
-{-|
-  This is generic algorithm for naken pairs, triples, etc.
-  
-  The idea is:
-  1. get all the board groups and update grid after each group handling.
-  2. For each group we're running same generalized algorighm parametrized with N (2 for pairs).
-  3. Algorithm look for set of N cells that conatin only n<=N same candidates.
-  4. Then we can remove all N candidates from rest of grouop.
-
--}
-updatedNakedSubsetsN :: Board -> Int -> Grid -> Grid
-updatedNakedSubsetsN board size grid = updateGridWithValues board grid updates
-  where
-    updates :: [(Position, Cell)]
-    updates = mergeGroupUpdates $ map groupUpdates $ boardGroups board
-    groupUpdates :: Group -> [(Position, Cell)]
-    groupUpdates _ = []
-
-    mergeGroupUpdates :: [[(Position, Cell)]] -> [(Position, Cell )]
-    mergeGroupUpdates pl = concat pl -- TODO: implement
 
 updateGridWithValues :: Board -> Grid -> [(Position, Cell )] -> Grid
 updateGridWithValues board grid values = map update pl 

@@ -5,10 +5,12 @@ import Board
 import ClassicBoard
 import Data.Maybe
 import qualified BoardTest
+import qualified Algs.NakedSubsetsTest
+import Algs.NakedSubsets
 
 main = defaultMain tests
 
-tests = testGroup "All tests"  [basicTests, BoardTest.tests ]
+tests = testGroup "All tests"  [basicTests, BoardTest.tests , Algs.NakedSubsetsTest.tests]
 basicTests = testGroup "Basic tests"  [ simplestTestCase, mediumTestCase, harderTestCase ] 
 
 -- simple
@@ -33,7 +35,10 @@ harderGrid = readGridWith classicInit $ concat [
   "........3",
   "..4.3...2"
   ]
-harderTestCase = testCase "Harder classic grid solved" $ assertBool "Not solved" $ isGridSolvedWith harderGrid mediumSolver
+harderTestCase = testCase "Harder classic grid solved" $ assertBool "Not solved" $ isGridSolvedWith harderGrid solver 
+  where solver =  mediumSolver . ss2 . ss3 
+        ss2 = nakedSubsetsN classicBoard 2
+        ss3 = nakedSubsetsN classicBoard 3
 
 -- helpers
 classicGridSolved = gridSolved  classicBoard
