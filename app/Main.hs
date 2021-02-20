@@ -9,7 +9,7 @@ import System.Exit
 import Algs.NakedSubsets
 
 isSolved = gridSolved classicBoard
-solver  = refreshGridValues . updateUniqueValues classicBoard . updatePossibleValues classicBoard . ss2 
+solver  = refreshGridValues . updateUniqueValues classicBoard . updatePossibleValues classicBoard . ss2 . ss3
   where
     ss2 = nakedSubsetsN classicBoard 2
     ss3 = nakedSubsetsN classicBoard 3
