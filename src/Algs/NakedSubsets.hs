@@ -45,14 +45,14 @@ handleCell n group cell = if hasNakedN then result else group
     groupNoCell :: [CellInfo]
     groupNoCell = filter (\ci -> cellInfoIndex ci /= cellInfoIndex cell) group
     filterPVLength :: CellInfo -> Bool 
-    filterPVLength (_, _, PossibleValues x) = length x == n
+    filterPVLength (_, _, PossibleValues x) = length x <= n
     filterPVLength _ = False 
     filterNaked :: CellInfo -> Bool 
     filterNaked (_, _, CellValue _ ) = False 
     filterNaked x = null $ cellCandidates (removeCellCandidates (cellInfoCell x) $ cellCandidates $ cellInfoCell cell)
 
     hasNakedN :: Bool
-    hasNakedN = length (filter filterNaked group) == n
+    hasNakedN = length (filter filterNaked group) == n && filterPVLength cell
     groupToUpdate :: [CellInfo]
     groupToUpdate = filter (not . filterNaked) groupNoCell
 --    groupToUpdate = filter (not . groupToUpdate') groupNoCell
@@ -70,4 +70,6 @@ handleCell n group cell = if hasNakedN then result else group
     result' o = fromMaybe o (result'' o)
     result'' :: CellInfo -> Maybe CellInfo
     result'' x = find (\ci -> cellInfoIndex ci == cellInfoIndex x) updatedCells
+
+    resultA = []
 
