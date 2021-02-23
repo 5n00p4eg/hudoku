@@ -1,12 +1,12 @@
 module Algs.NakedSubsetsTest (tests) where
 
+import ClassicBoard
 import Board
 import Grid
 import Test.Tasty
 import Test.Tasty.HUnit
 import TestBoard1d
 import Algs.NakedSubsets
-import ClassicBoard
 
 tests = testGroup "NakedSubsets algorithm tests"  [ nakedSubsets2TestGroup, handleCellTestGroup, handleGroupTestGroup ] 
 

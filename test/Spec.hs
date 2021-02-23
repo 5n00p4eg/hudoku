@@ -6,12 +6,19 @@ import ClassicBoard
 import Data.Maybe
 import qualified BoardTest
 import qualified Algs.NakedSubsetsTest
+import qualified Algs.HiddenSubsetsTest
 import Algs.NakedSubsets
+import Algs.HiddenSets
 
 main = defaultMain tests
 
-tests = testGroup "All tests"  [basicTests, BoardTest.tests , Algs.NakedSubsetsTest.tests]
-basicTests = testGroup "Basic tests"  [ simplestTestCase, mediumTestCase, harderTestCase ] 
+tests = testGroup "All tests"  [
+  basicTests,
+  BoardTest.tests,
+  Algs.NakedSubsetsTest.tests,
+  Algs.HiddenSubsetsTest.tests
+                               ]
+basicTests = testGroup "Basic tests"  [ simplestTestCase, mediumTestCase, harderTestCase, harderTestCase2 ] 
 
 -- simple
 simpleSolver = updatePossibleValues classicBoard . refreshGridValues 
@@ -39,6 +46,13 @@ harderTestCase = testCase "Harder classic grid solved" $ assertBool "Not solved"
   where solver =  mediumSolver . ss2 . ss3 
         ss2 = nakedSubsetsN classicBoard 2
         ss3 = nakedSubsetsN classicBoard 3
+
+harderTestCase2 = testCase "Harder calssic case 2" $ assertBool "Not solved" $ isGridSolvedWith grid solver
+  where
+    grid = readGridWith classicInit "....8..7..58.3.1............26....9.4.......67...293....7...9..1..2.3....6.....54"
+    solver = mediumSolver . ss2 . hs2
+    ss2 = nakedSubsetsN classicBoard 2
+    hs2 = hiddenSubsetsN classicBoard 2
 
 -- helpers
 classicGridSolved = gridSolved  classicBoard

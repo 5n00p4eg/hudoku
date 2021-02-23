@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 779963181820d1b049a6721571306c948cca5752d6f7ebfa42511beeaf9da39b
+-- hash: 3c38744d71db4c9efb379ed4d2dd9546f922839df60f7d5d95c0e6c6441c1da4
 
 name:           Hudoku
 version:        0.1.0.0
@@ -20,6 +20,7 @@ extra-source-files:
 
 library
   exposed-modules:
+      Algs.HiddenSets
       Algs.NakedSubsets
       Board
       ClassicBoard
@@ -54,6 +55,7 @@ test-suite test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Algs.HiddenSubsetsTest
       Algs.NakedSubsetsTest
       BoardTest
       TestBoard1d
