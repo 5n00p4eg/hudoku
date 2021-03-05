@@ -8,6 +8,7 @@ import GridShowers
 import System.Exit
 import Algs.NakedSubsets
 import Algs.HiddenSets
+import Checker
 
 isSolved = gridSolved classicBoard
 solver  = refreshGridValues . updateUniqueValues classicBoard . updatePossibleValues classicBoard . ss2 . ss3
@@ -34,6 +35,29 @@ harderGrid = readGridWith classicInit $ concat [
   "..4.3...2"
   ]
 
+loggingSolver:: Grid -> IO Grid
+loggingSolver g = do
+
+  let solver = rf . uu . hs2 . ns2 . up
+      up = updatePossibleValues classicBoard
+      hs2 = hiddenSubsetsN classicBoard 2
+      uu = updateUniqueValues classicBoard 
+      rf = refreshGridValues
+      ns2 = nakedSubsetsN classicBoard 2
+
+
+  putStrLn $ "input grid: " ++ showGrid g
+  putStrLn $ showGridPV classicBoard g
+  let ret = solver g 
+      isCorrect = isBoardCorrect classicBoard ret
+  if not isCorrect then return $ error "Not correct" else return ret 
+
+      
+solveIO :: (Grid -> IO Grid) -> Grid -> IO Grid
+solveIO s g = do
+  update <- s g
+  if update == g then return g else solveIO s update
+
 main :: IO ()
 main = do
   gridStr <- getLine
@@ -52,15 +76,10 @@ main = do
   putStrLn (showGridPV classicBoard updatedGrid2 ++ "\n Solved: " ++ show solved2)
 
   putStrLn ("solver1: " ++ show solved ++ "\nSolver2: " ++ show solved2)
+
+  ioGrid <- solveIO loggingSolver grid
+  putStrLn $ showGrid ioGrid
+
   exitSuccess 
-
-
-solveIO :: (Grid -> IO Grid) -> Grid -> IO Grid
-solveIO solver grid
-  | grid == update = grid
-  | otherwise = solveIO solver update
-  where
-    update :: IO Grid
-    update =  solver grid
 
 

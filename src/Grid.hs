@@ -16,6 +16,10 @@ instance Show Cell where
 isCellValue (CellValue _) = True
 isCellValue _             = False
 
+cellValue :: Cell -> Int
+cellValue (CellValue n) = n
+cellValue _ = error "Cell is not value"
+
 isEmptyCell EmptyCellVallue = True 
 isEmptyCell _               = False 
 

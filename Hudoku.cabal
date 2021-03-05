@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3c38744d71db4c9efb379ed4d2dd9546f922839df60f7d5d95c0e6c6441c1da4
+-- hash: 742253bf15bcd18824acdcf31f4ff08dad9b795b83d1a4a5c057ac3fde9df2ca
 
 name:           Hudoku
 version:        0.1.0.0
@@ -23,6 +23,7 @@ library
       Algs.HiddenSets
       Algs.NakedSubsets
       Board
+      Checker
       ClassicBoard
       Grid
       GridShowers
