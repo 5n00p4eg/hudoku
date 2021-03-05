@@ -4,19 +4,25 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 742253bf15bcd18824acdcf31f4ff08dad9b795b83d1a4a5c057ac3fde9df2ca
+-- hash: 19c49e4805cbb0362654eeb9271307b4ed7b6eb40aea64bc4af7980e55a05fc9
 
 name:           Hudoku
 version:        0.1.0.0
+homepage:       https://github.com/5n00p4eg/hudoku#readme
+bug-reports:    https://github.com/5n00p4eg/hudoku/issues
 author:         Daniil Boiko
-maintainer:     example@example.com
-copyright:      2018 Daniil Boiko
+maintainer:     5n00p4eg@gmail.com
+copyright:      2021 Daniil Boiko
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
     ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/5n00p4eg/hudoku
 
 library
   exposed-modules:
