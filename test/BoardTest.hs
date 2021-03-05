@@ -8,7 +8,7 @@ import Data.Maybe
 
 main = defaultMain tests
 
-tests = testGroup "Board module tests"  [ removeCandidatesTests, updateGridWithValuesTestGroup, showClassicBoardTest ] 
+tests = testGroup "Board module tests"  [ removeCandidatesTests, updateGridWithValuesTestGroup, showClassicBoardTest, getPossibleValuesTestGroup  ] 
 
 removeCandidatesTests = testGroup "Remove Candidates Tests" [ removeCandidatesSimpleCase ]
 
@@ -55,3 +55,17 @@ showClassicBoardTest = testCase "Show classic board test" $ assertEqual "" expec
   where
     expected = "Dim: 2, Size: 9, Groups: 27"
     actual = show classicBoard 
+
+
+getPossibleValuesTestGroup = testGroup "getPossibleValues test group" [ getPossibleValuesTestPv, getPossibleValuesTestEmpty, getPossibleValuesTestValue ]
+
+getPossibleValuesTestPv = testCase "Test getPossibleValues on PossibleValues constructor" $ assertEqual "" expected actual
+  where
+    expected = [1, 3, 9]
+    actual = getPossibleValues $ PossibleValues [1, 3, 9]
+
+getPossibleValuesTestEmpty = testCase "Test getPossibleValues on Empty constructor" $ assertEqual "" [] actual
+  where actual = getPossibleValues EmptyCellVallue 
+
+getPossibleValuesTestValue = testCase "Test getPossibleValues on CellValue constructor" $ assertEqual "" [] actual
+  where actual = getPossibleValues $ CellValue 8
