@@ -8,7 +8,7 @@ import Data.Maybe
 
 main = defaultMain tests
 
-tests = testGroup "Board module tests"  [ removeCandidatesTests, updateGridWithValuesTestGroup ] 
+tests = testGroup "Board module tests"  [ removeCandidatesTests, updateGridWithValuesTestGroup, showClassicBoardTest ] 
 
 removeCandidatesTests = testGroup "Remove Candidates Tests" [ removeCandidatesSimpleCase ]
 
@@ -51,4 +51,7 @@ updateGridWithValuesTest = testCase "Update grid with values test case" $ assert
 
 updateGridWithValuesNegativeTest = testCase "Update grid with values test negative case" ((simpleGrid /= actualUpdatedGrid) @? "Grid is not same")
 
-
+showClassicBoardTest = testCase "Show classic board test" $ assertEqual "" expected actual
+  where
+    expected = "Dim: 2, Size: 9, Groups: 27"
+    actual = show classicBoard 
