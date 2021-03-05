@@ -18,7 +18,9 @@ tests = testGroup "All tests"  [
   Algs.NakedSubsetsTest.tests,
   Algs.HiddenSubsetsTest.tests
                                ]
-basicTests = testGroup "Basic tests"  [ simplestTestCase, mediumTestCase, harderTestCase, harderTestCase2 ] 
+basicTests = testGroup "Basic tests"  [ simplestTestCase, mediumTestCase, harderTestCase
+  -- , harderTestCase2 
+  ] 
 
 -- simple
 simpleSolver = updatePossibleValues classicBoard . refreshGridValues 
