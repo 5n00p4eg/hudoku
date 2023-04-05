@@ -5,10 +5,13 @@ import Grid
 import Board
 import ClassicBoard
 import Data.Maybe
+import TestBoard1d
 
 main = defaultMain tests
 
-tests = testGroup "Board module tests"  [ removeCandidatesTests, updateGridWithValuesTestGroup, showClassicBoardTest, getPossibleValuesTestGroup  ] 
+tests = testGroup "Board module tests"  [ removeCandidatesTests, updateGridWithValuesTestGroup, showClassicBoardTest, getPossibleValuesTestGroup,
+                                          updateUniqValuesTestGroup
+                                        ] 
 
 removeCandidatesTests = testGroup "Remove Candidates Tests" [ removeCandidatesSimpleCase ]
 
@@ -69,3 +72,25 @@ getPossibleValuesTestEmpty = testCase "Test getPossibleValues on Empty construct
 
 getPossibleValuesTestValue = testCase "Test getPossibleValues on CellValue constructor" $ assertEqual "" [] actual
   where actual = getPossibleValues $ CellValue 8
+
+
+updateUniqValuesTestGroup = testGroup "updateUniqValues Test Group" [ updateUniqValuesTestCaseSmall1
+                                                                    ]
+
+updateUniqValuesTestCaseSmall1 = testCase "Test updateUniqValues on small grid" $ assertEqual "" expected  actual
+  where 
+    actual = updateUniqueValues testBoard1d [
+      PossibleValues [1,3,5],
+      PossibleValues [1,3],
+      PossibleValues [1,4],
+      PossibleValues [1,2],
+      PossibleValues [1,5]
+                                            ]
+    expected = [
+      PossibleValues [1,3,5],
+      PossibleValues [1,3],
+      CellValue 4,
+      CellValue 2,
+      PossibleValues [1,5]
+               ]
+

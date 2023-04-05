@@ -11,17 +11,18 @@ import Algs.HiddenSets
 import Checker
 
 isSolved = gridSolved classicBoard
-solver  = refreshGridValues . updateUniqueValues classicBoard . updatePossibleValues classicBoard . ss2 . ss3
-  where
-    ss2 = nakedSubsetsN classicBoard 2
-    ss3 = nakedSubsetsN classicBoard 3
-    hs2 = hiddenSubsetsN classicBoard 2
 
-solver2  = refreshGridValues . updateUniqueValues classicBoard . updatePossibleValues classicBoard . ss2 . ss3 . hs2
-  where
-    ss2 = nakedSubsetsN classicBoard 2
-    ss3 = nakedSubsetsN classicBoard 3
-    hs2 = hiddenSubsetsN classicBoard 2
+up = updatePossibleValues classicBoard
+hs2 = hiddenSubsetsN classicBoard 2
+uu = updateUniqueValues classicBoard 
+rf = refreshGridValues
+ns2 = nakedSubsetsN classicBoard 2
+ss2 = nakedSubsetsN classicBoard 2
+ss3 = nakedSubsetsN classicBoard 3
+
+
+solver  = rf . uu . up . ss2 . ss3
+solver2  = rf . uu . up . ss2 . ss3 . hs2
 
 harderGrid = readGridWith classicInit $ concat [
   "5...1.7..",
@@ -38,13 +39,7 @@ harderGrid = readGridWith classicInit $ concat [
 loggingSolver:: Grid -> IO Grid
 loggingSolver g = do
 
-  let solver = rf . uu . hs2 . ns2 . up
-      up = updatePossibleValues classicBoard
-      hs2 = hiddenSubsetsN classicBoard 2
-      uu = updateUniqueValues classicBoard 
-      rf = refreshGridValues
-      ns2 = nakedSubsetsN classicBoard 2
-
+  let solver = rf . uu . up . hs2
 
   putStrLn $ "input grid: " ++ showGrid g
   putStrLn $ showGridPV classicBoard g
@@ -62,14 +57,14 @@ main :: IO ()
 main = do
   gridStr <- getLine
   let 
-      grid = readGridWith classicInit gridStr
-      -- grid = harderGrid
+      -- grid = readGridWith classicInit gridStr
+      grid = harderGrid
       updatedGrid = recursiveUpdateWith solver grid
       solved = isSolved updatedGrid
 
       updatedGrid2 = recursiveUpdateWith solver2 grid
       solved2 = isSolved updatedGrid2
---  print grid
+  print grid
   putStrLn $ showGrid grid
   putStrLn (showGridPV classicBoard grid)
   putStrLn (showGridPV classicBoard updatedGrid ++ "\n Solved: " ++ show solved)
