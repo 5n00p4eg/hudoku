@@ -7,7 +7,7 @@ import Data.Maybe
 import Data.List
 
 {-|
-  This is generic algorithm for naken pairs, triples, etc.
+  This is generic algorithm for naked pairs, triples, etc.
   
   The idea is:
   1. get all the board groups and update grid after each group handling.

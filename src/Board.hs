@@ -35,11 +35,7 @@ showGroups g = show (head g)  ++ "\n" ++ showGroups (tail g)
 cellGetGroups :: Board -> Position -> [Group]
 cellGetGroups (Board _ _ gs _) p = filter (elem p) gs
 
-initPossibleValues :: Board -> Grid -> Grid
-initPossibleValues (Board _ s _ _) = map initCell 
-  where
-    initCell EmptyCellVallue = PossibleValues [1..s]
-    initCell a = a
+
 
 posToCell:: Board -> Grid -> Position -> Cell
 posToCell b g p = g !! posToNum b p
@@ -184,3 +180,8 @@ getCellsFromGroup board grid group = map posToCell' boardGroup
     boardGroup = boardGroups board !! group
     posToCell' = posToCell board grid
 
+-- TODO: Deprecate
+initPossibleValues' (Board _ s _ _) = map initCell 
+   where
+     initCell EmptyCellVallue = PossibleValues [1..s]
+     initCell a = a

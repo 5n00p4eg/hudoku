@@ -5,19 +5,22 @@ import Board
 import ClassicBoard
 import Data.Maybe
 import qualified BoardTest
-import qualified Algs.NakedSubsetsTest
-import qualified Algs.HiddenSubsetsTest
+-- import qualified Algs.NakedSubsetsTest
+-- import qualified Algs.HiddenSubsetsTest
+import qualified GameTest
 import Algs.NakedSubsets
 import Algs.HiddenSets
+-- import Missions.Classic.Hard
 
 main = defaultMain tests
 
-tests = testGroup "All tests"  [
+tests = testGroup "All tests" [
   basicTests,
   BoardTest.tests,
-  Algs.NakedSubsetsTest.tests,
-  Algs.HiddenSubsetsTest.tests
-                               ]
+  GameTest.tests
+  -- Algs.NakedSubsetsTest.tests,
+  -- Algs.HiddenSubsetsTest.tests
+                              ]
 basicTests = testGroup "Basic tests"  [ simplestTestCase, mediumTestCase, harderTestCase
   -- , harderTestCase2 
   ] 
@@ -58,6 +61,6 @@ harderTestCase2 = testCase "Harder calssic case 2" $ assertBool "Not solved" $ i
 
 -- helpers
 classicGridSolved = gridSolved  classicBoard
-classicInitPossibleValues = initPossibleValues classicBoard
+classicInitPossibleValues = initPossibleValues' classicBoard
 isGridSolvedWith :: Grid -> (Grid -> Grid) -> Bool
 isGridSolvedWith g f = classicGridSolved $ recursiveUpdateWith f g

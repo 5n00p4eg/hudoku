@@ -3,11 +3,12 @@ module ClassicBoard where
 import Grid
 import Board
 import Data.List
+import Game
 
 classicBoard = Board 2 9 classicGroups classicPositions
 
 classicInit:: Grid -> Grid
-classicInit = initPossibleValues classicBoard
+classicInit = initPossibleValues' classicBoard
 
 classicGroups :: [Group]
 classicGroups = row_groups ++ col_groups ++ square_groups
@@ -24,7 +25,6 @@ classicGroups = row_groups ++ col_groups ++ square_groups
     square_y n c = (square_row n - 1) * 3 + div (c + 2) 3
 
 
-
 classicPositions::PositionList
 classicPositions= sortBy (\(a, _) (b, _)-> compare a b) grid
   where
@@ -32,3 +32,6 @@ classicPositions= sortBy (\(a, _) (b, _)-> compare a b) grid
     row n = map (`item` n) [1..9]
     item x y = (num x y, Position [x,y])
     num x y = ((y - 1) * 9) + x
+
+classicGame :: Game ()
+classicGame = initGame classicBoard

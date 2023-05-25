@@ -9,6 +9,7 @@ import System.Exit
 import Algs.NakedSubsets
 import Algs.HiddenSets
 import Checker
+import Game
 
 isSolved = gridSolved classicBoard
 
@@ -24,7 +25,7 @@ ss3 = nakedSubsetsN classicBoard 3
 solver  = rf . uu . up . ss2 . ss3
 solver2  = rf . uu . up . ss2 . ss3 . hs2
 
-harderGrid = readGridWith classicInit $ concat [
+harderGrid = fromJust . readGrid $ concat [
   "5...1.7..",
   "8........",
   "2....35..",
@@ -35,6 +36,11 @@ harderGrid = readGridWith classicInit $ concat [
   "........3",
   "..4.3...2"
   ]
+
+setupGame :: Grid -> Game()
+setupGame grid = do
+  initGame classicBoard
+  fillGrid grid
 
 loggingSolver:: Grid -> IO Grid
 loggingSolver g = do
@@ -53,27 +59,33 @@ solveIO s g = do
   update <- s g
   if update == g then return g else solveIO s update
 
+
 main :: IO ()
 main = do
-  gridStr <- getLine
-  let 
+  -- gridStr <- getLine
+  -- let 
       -- grid = readGridWith classicInit gridStr
-      grid = harderGrid
-      updatedGrid = recursiveUpdateWith solver grid
-      solved = isSolved updatedGrid
+      -- grid = harderGrid
+      -- updatedGrid = recursiveUpdateWith solver grid
+      -- solved = isSolved updatedGrid
 
-      updatedGrid2 = recursiveUpdateWith solver2 grid
-      solved2 = isSolved updatedGrid2
-  print grid
-  putStrLn $ showGrid grid
-  putStrLn (showGridPV classicBoard grid)
-  putStrLn (showGridPV classicBoard updatedGrid ++ "\n Solved: " ++ show solved)
-  putStrLn (showGridPV classicBoard updatedGrid2 ++ "\n Solved: " ++ show solved2)
+      -- updatedGrid2 = recursiveUpdateWith solver2 grid
+      -- solved2 = isSolved updatedGrid2
+  -- print grid
+  -- putStrLn $ showGrid grid
+  -- putStrLn (showGridPV classicBoard grid)
+  -- putStrLn (showGridPV classicBoard updatedGrid ++ "\n Solved: " ++ show solved)
+  -- putStrLn (showGridPV classicBoard updatedGrid2 ++ "\n Solved: " ++ show solved2)
 
-  putStrLn ("solver1: " ++ show solved ++ "\nSolver2: " ++ show solved2)
+  -- putStrLn ("solver1: " ++ show solved ++ "\nSolver2: " ++ show solved2)
 
-  ioGrid <- solveIO loggingSolver grid
-  putStrLn $ showGrid ioGrid
+  -- ioGrid <- solveIO loggingSolver grid
+  -- putStrLn $ showGrid ioGrid
+  let
+    game = setupGame harderGrid
+    -- grid = getGrid game
+    -- grid = runGame game
+  -- print grid
 
   exitSuccess 
 
