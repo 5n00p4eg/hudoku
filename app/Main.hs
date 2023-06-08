@@ -37,11 +37,6 @@ harderGrid = fromJust . readGrid $ concat [
   "..4.3...2"
   ]
 
-setupGame :: Grid -> Game()
-setupGame grid = do
-  initGame classicBoard
-  fillGrid grid
-
 loggingSolver:: Grid -> IO Grid
 loggingSolver g = do
 
@@ -59,6 +54,18 @@ solveIO s g = do
   update <- s g
   if update == g then return g else solveIO s update
 
+
+monadSolver :: Game (Bool)
+monadSolver = do
+  initPossibleValues
+
+  grid <- getGrid
+  let
+    solved = recursiveUpdateWith solver grid
+  setGrid (solved)
+  solved <- gameSolved
+  return solved
+  
 
 main :: IO ()
 main = do
@@ -82,10 +89,11 @@ main = do
   -- ioGrid <- solveIO loggingSolver grid
   -- putStrLn $ showGrid ioGrid
   let
-    game = setupGame harderGrid
+    -- game = setupGame harderGrid
     -- grid = getGrid game
-    -- grid = runGame game
-  -- print grid
+    (solved, grid) = runGame classicBoard harderGrid monadSolver
+  print grid
+  print solved
 
   exitSuccess 
 

@@ -9,7 +9,7 @@ data Cell = CellValue Int | EmptyCellVallue | PossibleValues [Int] deriving (Eq)
 instance Show Cell where
   show (CellValue a) = show a
   show EmptyCellVallue = "."
- -- show (PossibleValues x) = show x
+  show (PossibleValues x) = show x
 --  show (PossibleValues _) = "_"
   show (PossibleValues _) = "."
 

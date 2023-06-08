@@ -9,6 +9,8 @@ import Control.Monad.Identity
 
 type Game a = StateT Grid (ReaderT Board (Identity)) a
 
+runGame :: Board -> Grid -> Game a -> (a, Grid)
+runGame board grid action = runIdentity $ runReaderT (runStateT (action) grid) board
 
 execGame :: Board -> Grid -> Game a -> Grid
 execGame board grid action = runIdentity $ runReaderT (execStateT (action) grid) board
@@ -40,13 +42,13 @@ initPossibleValues = do
     put $ Board.initPossibleValues' board grid
     -- return ()
 
-getGrid :: Game () -> Game(Grid)
-getGrid g = do
+getGrid :: Game(Grid)
+getGrid = do
     grid <- get
     return grid
 
+getBoard :: Game(Board)
+getBoard = ask
 
-
--- instance Monad Game where
-    -- return v = Game 
-    -- Game _ a >>= f = f 
+setGrid g = do
+    put g

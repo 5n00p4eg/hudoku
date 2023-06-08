@@ -10,11 +10,15 @@ import Data.Tuple.Extra
 newtype Position = Position [Int]
   deriving (Show, Eq);
 
+
+type GridIndex = Int
+type GroupIndex = Int
+
 type PositionList = [(Int, Position)]
 
 type Group = [Position]
 
-type CellInfo = (Position, Int, Cell)
+type CellInfo = (Position, GridIndex, Cell)
 
 -- Dim, size, groups
 data Board = Board Int Int [Group] PositionList

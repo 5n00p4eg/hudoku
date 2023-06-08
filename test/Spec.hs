@@ -10,6 +10,7 @@ import qualified BoardTest
 import qualified GameTest
 import Algs.NakedSubsets
 import Algs.HiddenSets
+import qualified Algs.NakedSubsetsMonadicTest
 -- import Missions.Classic.Hard
 
 main = defaultMain tests
@@ -17,9 +18,10 @@ main = defaultMain tests
 tests = testGroup "All tests" [
   basicTests,
   BoardTest.tests,
-  GameTest.tests
+  GameTest.tests,
   -- Algs.NakedSubsetsTest.tests,
   -- Algs.HiddenSubsetsTest.tests
+  Algs.NakedSubsetsMonadicTest.tests
                               ]
 basicTests = testGroup "Basic tests"  [ simplestTestCase, mediumTestCase, harderTestCase
   -- , harderTestCase2 
