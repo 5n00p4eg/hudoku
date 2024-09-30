@@ -1,83 +1,82 @@
 module Main where
 
-import Grid
+import Algs.HiddenSets
+import Algs.NakedSubsets
 import Board
-import Data.Maybe
+import Checker
 import ClassicBoard
+import Data.Maybe
+import Game
+import Grid
 import GridShowers
 import System.Exit
-import Algs.NakedSubsets
-import Algs.HiddenSets
-import Checker
-import Game
 
 isSolved = gridSolved classicBoard
 
 up = updatePossibleValues classicBoard
+
 hs2 = hiddenSubsetsN classicBoard 2
-uu = updateUniqueValues classicBoard 
+
+uu = updateUniqueValues classicBoard
+
 rf = refreshGridValues
+
 ns2 = nakedSubsetsN classicBoard 2
-ss2 = nakedSubsetsN classicBoard 2
-ss3 = nakedSubsetsN classicBoard 3
 
+ns3 = nakedSubsetsN classicBoard 3
 
-solver  = rf . uu . up . ss2 . ss3
-solver2  = rf . uu . up . ss2 . ss3 . hs2
+solver = rf . uu . up . ns2 . ns3
 
-harderGrid = fromJust . readGrid $ concat [
-  "5...1.7..",
-  "8........",
-  "2....35..",
-  "..1.9..6.",
-  "3..851..7",
-  ".8..4.3..",
-  "..51....9",
-  "........3",
-  "..4.3...2"
-  ]
+solver2 = rf . uu . up . ns2 . ns3 . hs2
 
-loggingSolver:: Grid -> IO Grid
+harderGrid =
+  fromJust . readGrid $
+    concat
+      [ "5...1.7..",
+        "8........",
+        "2....35..",
+        "..1.9..6.",
+        "3..851..7",
+        ".8..4.3..",
+        "..51....9",
+        "........3",
+        "..4.3...2"
+      ]
+
+loggingSolver :: Grid -> IO Grid
 loggingSolver g = do
-
   let solver = rf . uu . up . hs2
 
   putStrLn $ "input grid: " ++ showGrid g
   putStrLn $ showGridPV classicBoard g
-  let ret = solver g 
+  let ret = solver g
       isCorrect = isBoardCorrect classicBoard ret
-  if not isCorrect then return $ error "Not correct" else return ret 
+  if not isCorrect then return $ error "Not correct" else return ret
 
-      
 solveIO :: (Grid -> IO Grid) -> Grid -> IO Grid
 solveIO s g = do
   update <- s g
   if update == g then return g else solveIO s update
 
-
-monadSolver :: Game (Bool)
+monadSolver :: Game Bool
 monadSolver = do
   initPossibleValues
 
   grid <- getGrid
-  let
-    solved = recursiveUpdateWith solver grid
-  setGrid (solved)
-  solved <- gameSolved
-  return solved
-  
+  let solved = recursiveUpdateWith solver grid
+  setGrid solved
+  gameSolved
 
 main :: IO ()
 main = do
   -- gridStr <- getLine
-  -- let 
-      -- grid = readGridWith classicInit gridStr
-      -- grid = harderGrid
-      -- updatedGrid = recursiveUpdateWith solver grid
-      -- solved = isSolved updatedGrid
+  let -- grid = readGridWith classicInit gridStr
+      grid = harderGrid
+  -- updatedGrid = recursiveUpdateWith solver grid
+  -- solved = isSolved updatedGrid
 
-      -- updatedGrid2 = recursiveUpdateWith solver2 grid
-      -- solved2 = isSolved updatedGrid2
+  -- updatedGrid2 = recursiveUpdateWith solver2 grid
+  -- solved2 = isSolved updatedGrid2
   -- print grid
   -- putStrLn $ showGrid grid
   -- putStrLn (showGridPV classicBoard grid)
@@ -88,13 +87,10 @@ main = do
 
   -- ioGrid <- solveIO loggingSolver grid
   -- putStrLn $ showGrid ioGrid
-  let
-    -- game = setupGame harderGrid
-    -- grid = getGrid game
-    (solved, grid) = runGame classicBoard harderGrid monadSolver
+  let -- game = setupGame harderGrid
+      -- grid = getGrid game
+      (solved, grid) = runGame classicBoard harderGrid monadSolver
   print grid
   print solved
 
-  exitSuccess 
-
-
+  exitSuccess
