@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.37.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: dc1dc9a2a968981366f4c6ef0f31bb5fc54208a704fe976201dd93801b78c912
+-- hash: 9b5d0dce940fe5076f8a3f0835004881c577c57f71357a0aa1ea45080a67ab46
 
 name:           Hudoku
 version:        0.1.0.0
@@ -26,8 +26,8 @@ source-repository head
 
 library
   exposed-modules:
+      Algs.Algs
       Algs.HiddenSets
-      Algs.NakedSubsets
       Algs.NakedSubsetsMonadic
       Board
       Checker
@@ -35,6 +35,7 @@ library
       Game
       Grid
       GridShowers
+      Steps
   other-modules:
       Paths_Hudoku
   hs-source-dirs:
@@ -44,6 +45,7 @@ library
     , base >=4.7 && <5
     , boxes
     , bytestring
+    , containers
     , extra
     , mtl
     , text
@@ -62,6 +64,7 @@ executable exe
     , base >=4.7 && <5
     , boxes
     , bytestring
+    , containers
     , extra
     , mtl
     , text
@@ -73,11 +76,11 @@ test-suite test
   other-modules:
       Algs.HiddenSubsetsTest
       Algs.NakedSubsetsMonadicTest
-      Algs.NakedSubsetsTest
       BoardTest
       GameTest
       GridTest
       Missions.Classic.Hard
+      Steps
       TestBoard1d
       Paths_Hudoku
   hs-source-dirs:
@@ -90,6 +93,7 @@ test-suite test
     , base >=4.7 && <5
     , boxes
     , bytestring
+    , containers
     , extra
     , mtl
     , tasty

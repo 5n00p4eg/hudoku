@@ -1,5 +1,8 @@
 module Board where
 
+import Data.IntSet (IntSet)
+import qualified Data.IntSet as IntSet
+import Data.Ix (Ix (range))
 import Data.List
 import Data.Maybe
 import Data.Tuple.Extra
@@ -15,7 +18,7 @@ type GridIndex = Int
 
 type GroupIndex = Int
 
-type PositionList = [(Int, Position)]
+type PositionList = [(GridIndex, Position)]
 
 type Group = [Position]
 
@@ -27,19 +30,22 @@ data Board = Board Int Int [Group] PositionList
 instance Show Board where
   show (Board d s g _) = "Dim: " ++ show d ++ ", Size: " ++ show s ++ ", Groups: " ++ show (length g)
 
-boardValues :: Board -> [Int]
-boardValues (Board _ n _ _) = [1 .. n]
+boardValues :: Board -> CellPossibleValues
+boardValues (Board _ n _ _) = IntSet.fromList $ range (1, n)
 
 showBoardGroups :: Board -> String
 showBoardGroups (Board _ _ g _) = showGroups g
 
-getPossibleValues :: Cell -> [Int]
+getPossibleValues :: Cell -> CellPossibleValues
 getPossibleValues (PossibleValues v) = v
-getPossibleValues _ = []
+getPossibleValues _ = IntSet.empty
 
 showGroups :: [Group] -> String
 showGroups [] = ""
 showGroups g = show (head g) ++ "\n" ++ showGroups (tail g)
+
+boardGroupIndexes :: Board -> [GroupIndex]
+boardGroupIndexes b = [0 .. length (boardGroups b) - 1]
 
 cellGetGroups :: Board -> Position -> [Group]
 cellGetGroups (Board _ _ gs _) p = filter (elem p) gs
@@ -68,35 +74,43 @@ cellInfoIndex = snd3
 cellInfoCell :: CellInfo -> Cell
 cellInfoCell = thd3
 
+setCellInfoValue :: CellInfo -> Cell -> CellInfo
+setCellInfoValue (p, i, _) n = (p, i, n)
+
 numToPos :: Board -> Grid -> Int -> Position
 numToPos (Board _ _ _ pl) g p = snd (fromJust $ find (\(i, _) -> i == p) pl)
 
-getUniqueGroupValues :: Board -> Grid -> Group -> [Int]
+getUniqueGroupValues :: Board -> Grid -> Group -> CellPossibleValues
 getUniqueGroupValues (Board d s gs pl) grid groupNum = unique $ freq $ pv groupNum
   where
-    unique :: [(Int, Int)] -> [Int]
-    unique list = map fst $ filter (\(x, l) -> l == 1) list
+    unique :: [(Int, Int)] -> CellPossibleValues
+    unique list = IntSet.fromList $ map fst $ filter (\(x, l) -> l == 1) list
     pv :: Group -> [Int]
-    pv = concatMap (cellToPV . posToCell')
-    cellToPV :: Cell -> [Int]
+    pv = concatMap (pvToList . cellToPV . posToCell')
+
+    pvToList :: CellPossibleValues -> [Int]
+    pvToList = IntSet.toAscList
+
+    cellToPV :: Cell -> CellPossibleValues
     cellToPV (PossibleValues p) = p
-    cellToPV _ = []
+    cellToPV _ = IntSet.empty
+    posToCell' :: Position -> Cell
     posToCell' = posToCell (Board d s gs pl) grid
-    freq :: [Int] -> [(Int, Int)]
+    freq :: [Int] -> [(Int, Int)] -- (value, length)
     freq = map (\x -> (head x, length x)) . group . sort
 
 updateUniqueValues :: Board -> Grid -> Grid
 updateUniqueValues board grid = updateGridWithValues board grid (updates (z grid))
   where
-    updates :: [(Group, [Int])] -> [(Position, Cell)]
+    updates :: [(Group, CellPossibleValues)] -> [(Position, Cell)]
     updates = concatMap updates'
-    updates' :: (Group, [Int]) -> [(Position, Cell)]
-    updates' (g, vals) = map (\val -> (updatePos g val, CellValue val)) vals
+    updates' :: (Group, CellPossibleValues) -> [(Position, Cell)]
+    updates' (g, vals) = map (\val -> (updatePos g val, CellValue val)) $ IntSet.toAscList vals
     updatePos :: Group -> Int -> Position
     updatePos g v = fromJust $ find (\pos -> isPossibleValuesHasValue (posToCell' pos) v) g
-    z :: Grid -> [(Group, [Int])]
+    z :: Grid -> [(Group, CellPossibleValues)]
     z grid = zip (boardGroups board) (uniq grid)
-    uniq :: Grid -> [[Int]]
+    uniq :: Grid -> [CellPossibleValues]
     uniq grid = map (getUniqueGroupValues board grid) (boardGroups board)
     posToCell' = posToCell board grid
 
@@ -112,15 +126,21 @@ updateGridWithValues board grid values = map update pl
 updatePossibleValues :: Board -> Grid -> Grid
 updatePossibleValues (Board d s gs pl) grid = map updateCell gridToMap
   where
+    updateCell :: (Position, Cell) -> Cell
     updateCell (_, CellValue n) = CellValue n
     updateCell (pos, PossibleValues pvals) = PossibleValues (filterPvals pos pvals)
     updateCell (_, EmptyCellVallue) = error "init values before update"
 
-    filterPvals pos = filter (\old -> old `notElem` getActiveVals (groupsByPos pos))
+    filterPvals pos = IntSet.filter (\old -> old `IntSet.notMember` getActiveVals (groupsByPos pos))
+
+    gridToMap :: [(Position, Cell)]
     gridToMap = map (\n -> (snd n, grid !! (fst n - 1))) pl
     groupsByPos pos = filter (elem pos) gs
-    getActiveVals grps = nub $ map (fromJust . getActiveVals'') $ filter filterAval $ getActiveVals' grps
+
+    getActiveVals :: [Group] -> CellPossibleValues
+    getActiveVals grps = IntSet.fromList $ map (fromJust . getActiveVals'') $ filter filterAval $ getActiveVals' grps
     --  Get array of Cell's
+    getActiveVals' :: [Group] -> [Cell]
     getActiveVals' grps = map posToCell' (nub $ concat grps)
     getActiveVals'' (CellValue a) = Just a
     getActiveVals'' _ = Nothing
@@ -129,7 +149,7 @@ updatePossibleValues (Board d s gs pl) grid = map updateCell gridToMap
     posToCell' = posToCell (Board d s gs pl) grid
 
 -- TODO: Cover with tests
-removeCandidates :: Board -> Grid -> [Position] -> [Int] -> Grid
+removeCandidates :: Board -> Grid -> [Position] -> CellPossibleValues -> Grid
 removeCandidates board grid posList vals = map update pl
   where
     pl = boardPositionList board
@@ -146,6 +166,9 @@ boardSize (Board d s g pl) = map dimSize [1 .. d]
   where
     dimSize d = maximum $ dimSize' d
     dimSize' d = map (\(_, Position pos) -> pos !! (d - 1)) pl
+
+boardGridLength :: Board -> Int
+boardGridLength (Board _ _ _ pl) = length pl
 
 boardDimensions :: Board -> Int
 boardDimensions (Board d _ _ _) = d
@@ -173,6 +196,12 @@ recursiveUpdateWith f grid
   where
     update :: Grid
     update = f grid
+
+getCellsInfoFromGroup :: Board -> Grid -> Int -> [CellInfo]
+getCellsInfoFromGroup board grid group = map posToCellInfo' boardGroup
+  where
+    boardGroup = boardGroups board !! group
+    posToCellInfo' = posToCellInfo board grid
 
 getCellsFromGroup :: Board -> Grid -> Int -> [Cell]
 getCellsFromGroup board grid group = map posToCell' boardGroup

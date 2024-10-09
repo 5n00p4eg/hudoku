@@ -1,7 +1,6 @@
 module Main where
 
 import Algs.HiddenSets
-import Algs.NakedSubsets
 import Board
 import Checker
 import ClassicBoard
@@ -21,13 +20,9 @@ uu = updateUniqueValues classicBoard
 
 rf = refreshGridValues
 
-ns2 = nakedSubsetsN classicBoard 2
+solver = rf . uu . up
 
-ns3 = nakedSubsetsN classicBoard 3
-
-solver = rf . uu . up . ns2 . ns3
-
-solver2 = rf . uu . up . ns2 . ns3 . hs2
+solver2 = rf . uu . up . hs2
 
 harderGrid =
   fromJust . readGrid $

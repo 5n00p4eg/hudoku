@@ -1,13 +1,14 @@
 module Algs.HiddenSets where
 
 import Board
-import Grid
 import Control.Applicative
-import Data.Maybe
+import qualified Data.IntSet as IntSet
 import Data.List
+import Data.Maybe
+import Grid
 
 hiddenSubsetsN :: Board -> Int -> Grid -> Grid
-hiddenSubsetsN board size grid = foldl grp grid [0..length (boardGroups board) - 1]
+hiddenSubsetsN board size grid = foldl grp grid [0 .. length (boardGroups board) - 1]
   where
     grp curry gn = hiddenSubsetsNGroupN board size gn curry
 
@@ -26,51 +27,49 @@ handleGroup :: Int -> [CellInfo] -> [CellInfo]
 handleGroup n group = sortBy (\a b -> compare (cellInfoIndex a) (cellInfoIndex b)) $ result sets
   where
     av :: [Int] -- All avaliable values in the group
-    av = sort . nub $ concatMap (getPossibleValues . cellInfoCell) $ filter (isPossibleValues . cellInfoCell) group
+    av = sort . nub $ concatMap (IntSet.toList . getPossibleValues . cellInfoCell) $ filter (isPossibleValues . cellInfoCell) group
 
     avFreq = map (\x -> (x, avFreq' x)) av -- PV frequency map
     avFreq' x = length $ filter (\ci -> isPossibleValuesHasValue (cellInfoCell ci) x) group
 
     avFreqN :: Int -> [(Int, Int)] -> [Int] -- Filter frequency map
-    avFreqN n list =  map fst $ filter (\p -> snd p == n) list
+    avFreqN n list = map fst $ filter (\p -> snd p == n) list
 
     ss :: [[Int]] -- PV combinations with length N
-    ss = map sort $ filter ((n==).length) $ subsequences $ avFreqN n avFreq 
+    ss = map sort $ filter ((n ==) . length) $ subsequences $ avFreqN n avFreq
 
     -- Found hidden sets
     sets :: [([Int], [Position])]
     sets = mapMaybe sets' ss
       where
         sets' :: [Int] -> Maybe ([Int], [Position])
-        sets' pvs = if not $ null hs then Just (pvs, hs) else Nothing 
+        sets' pvs = if not $ null hs then Just (pvs, hs) else Nothing
           where
-           hs = handleSet group pvs
+            hs = handleSet group pvs
 
-    -- Transform sets 
+    -- Transform sets
     result :: [([Int], [Position])] -> [CellInfo]
-    result r = foldl foldf [] r
+    result = foldl foldf []
 
     foldf :: [CellInfo] -> ([Int], [Position]) -> [CellInfo]
     foldf c (pvs, pl) = new ++ fc -- Build new + save curry
       where
-        ci pos = getCellInfo group c pos -- pos to cellinfo
-        updatePos pos = ( -- Build new cellInfo
-          pos,
-          cellInfoIndex $ ci pos,
-          PossibleValues pvs
-                        )
+        ci = getCellInfo group c
+        updatePos pos =
+          ( -- Build new cellInfo
+            pos,
+            cellInfoIndex $ ci pos,
+            PossibleValues $ IntSet.fromList pvs
+          )
         new = map updatePos pl -- updated cells
-        fc = filter (\(_,i, _) -> i `notElem` map cellInfoIndex new) c -- old cells
-
-
-    getCellInfo :: [CellInfo] -> [CellInfo] -> Position -> CellInfo 
+        fc = filter (\(_, i, _) -> i `notElem` map cellInfoIndex new) c -- old cells
+    getCellInfo :: [CellInfo] -> [CellInfo] -> Position -> CellInfo
     getCellInfo source res pos = fromMaybe (fromJust $ getCellInfo' pos source) (getCellInfo' pos res)
-    getCellInfo' i group = find (\ci -> cellInfoPosition ci == i) group
+    getCellInfo' i = find (\ci -> cellInfoPosition ci == i)
 
-    
 handleSet :: [CellInfo] -> [Int] -> [Position]
 handleSet group pvs = if isHiddenSet pv then res pv else []
-  where 
+  where
     n = length pvs
 
     pv :: [(Int, [Position])]
@@ -80,12 +79,11 @@ handleSet group pvs = if isHiddenSet pv then res pv else []
 
     res :: [(Int, [Position])] -> [Position]
     res [] = []
-    res (h:_) = snd h
+    res (h : _) = snd h
 
     isHiddenSet :: [(Int, [Position])] -> Bool
     isHiddenSet set = same && length (snd $ head set) == n
-      where 
+      where
         same = all same' set
         same' :: (Int, [Position]) -> Bool
-        same' = \(_, pl) -> pl == snd (head set)
-
+        same' (_, pl) = pl == snd (head set)

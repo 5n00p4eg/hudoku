@@ -1,10 +1,13 @@
 module Grid where
 
 import Data.Char
+import Data.IntSet (IntSet, difference, findMin, member, size)
 import Data.Maybe
 import Prelude
 
-data Cell = CellValue Int | EmptyCellVallue | PossibleValues [Int] deriving (Eq)
+type CellPossibleValues = IntSet
+
+data Cell = CellValue Int | EmptyCellVallue | PossibleValues CellPossibleValues deriving (Eq)
 
 instance Show Cell where
   show (CellValue a) = show a
@@ -24,12 +27,12 @@ isEmptyCell _ = False
 isPossibleValues (PossibleValues _) = True
 isPossibleValues _ = False
 
-cellCandidates :: Cell -> [Int]
+cellCandidates :: Cell -> CellPossibleValues
 cellCandidates (PossibleValues x) = x
 cellCandidates _ = error "Cell can't have candidates"
 
 isPossibleValuesHasValue :: Cell -> Int -> Bool
-isPossibleValuesHasValue (PossibleValues vals) x = x `elem` vals
+isPossibleValuesHasValue (PossibleValues vals) x = x `member` vals
 isPossibleValuesHasValue _ _ = False
 
 type Grid = [Cell]
@@ -47,7 +50,7 @@ refreshGridValues :: Grid -> Grid
 refreshGridValues = map refreshGridValue
 
 refreshGridValue :: Cell -> Cell
-refreshGridValue (PossibleValues p) = if length p == 1 then CellValue (head p) else PossibleValues p
+refreshGridValue (PossibleValues p) = if size p == 1 then CellValue (findMin p) else PossibleValues p
 refreshGridValue x = x
 
 readGrid :: String -> Maybe Grid
@@ -62,6 +65,6 @@ readGrid = traverse readCell
 readGridWith :: (Grid -> Grid) -> String -> Grid
 readGridWith f = f . fromJust . readGrid
 
-removeCellCandidates :: Cell -> [Int] -> Cell
-removeCellCandidates (PossibleValues p) list = PossibleValues (filter (`notElem` list) p)
+removeCellCandidates :: Cell -> CellPossibleValues -> Cell
+removeCellCandidates (PossibleValues p) list = PossibleValues (difference p list)
 removeCellCandidates x _ = x
